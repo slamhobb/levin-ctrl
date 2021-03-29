@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Лёвин-контроль</title>
+
+</head>
+<body>
+    <h1>Wi-Fi g/n</h1>
+    <h2>Выключающее правило</h2>
+    <form method="post" action="{{ url_for('.turn_rule') }}">
+    {% if rule_status %}
+        <input type="hidden" name="new_status" value="false">
+        <input type="submit" value="Отключить" style="font-size: 2.5rem">
+    {% else %}
+        <input type="hidden" name="new_status" value="true">
+        <input type="submit" value="Включить" style="font-size: 2.5rem">
+    {% endif %}
+    </form>
+
+    <h2>Интерфейс</h2>
+    <form method="post" action="{{ url_for('.turn_wifi') }}">
+    {% if wifi_status %}
+        <input type="hidden" name="new_status" value="false">
+        <input type="submit" value="Отключить" style="font-size: 2.5rem">
+    {% else %}
+        <input type="hidden" name="new_status" value="true">
+        <input type="submit" value="Включить" style="font-size: 2.5rem">
+    {% endif %}
+    </form>
+
+    <table>
+    {% for line in wifi_lines %}
+        <tr>
+            <td><pre>{{ line }}</pre></td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <h1>Wi-Fi дополнительный b/g/n</h1>
+    <form method="post" action="{{ url_for('.turn_wifi_ext') }}">
+    {% if wifi_ext_status %}
+        <input type="hidden" name="new_status" value="false">
+        <input type="submit" value="Отключить" style="font-size: 2.5rem">
+    {% else %}
+        <input type="hidden" name="new_status" value="true">
+        <input type="submit" value="Включить" style="font-size: 2.5rem">
+    {% endif %}
+    </form>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+# pycache
+__pycache__
+*.pyc
+
+# idea
+.idea/
+
+# python test cache
+.pytest_cache
