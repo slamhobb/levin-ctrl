@@ -1,3 +1,4 @@
+from typing import List, Tuple
 import subprocess as sp
 from enum import Enum
 from config import config
@@ -59,7 +60,7 @@ def _ssh_query(query: str, router_type: RouterType) -> str:
     return sp.getoutput(cmd)
 
 
-def _ssh_multi_query(queries: list[(str, RouterType)]) -> list[str]:
+def _ssh_multi_query(queries: List[Tuple[str, RouterType]]) -> List[str]:
     cmds = [_build_command(query, router_type) for (query, router_type) in queries]
 
     processes = [sp.Popen(cmd, shell=True, stdout=sp.PIPE, universal_newlines=True) for cmd in cmds]
