@@ -35,7 +35,7 @@ def get_data():
 
     wifi_lines = lines
 
-    wifi_ext_status = result2 == 'true'
+    wifi_ext_status = result2.split('\n')[0] == 'true'
 
     return rule_status, wifi_status, wifi_lines, wifi_ext_status
 
