@@ -1,3 +1,23 @@
+{% macro dot(status) -%}
+    {% if status %}
+        <span style="color: lawngreen">&#9899;</span>
+    {% else %}
+        <span style="color: darkgray">&#9899;</span>
+    {% endif %}
+{%- endmacro  %}
+
+{%  macro form(status, url) -%}
+    <form method="post" action="{{ url }}">
+    {% if status %}
+        <input type="hidden" name="new_status" value="false">
+        <input type="submit" value="Отключить" style="font-size: 2.5rem">
+    {% else %}
+        <input type="hidden" name="new_status" value="true">
+        <input type="submit" value="Включить" style="font-size: 2.5rem">
+    {% endif %}
+    </form>
+{%- endmacro %}
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,28 +27,11 @@
 
 </head>
 <body>
-    <h1>Wi-Fi g/n</h1>
-    <h2>Выключающее правило</h2>
-    <form method="post" action="{{ url_for('.turn_rule') }}">
-    {% if rule_status %}
-        <input type="hidden" name="new_status" value="false">
-        <input type="submit" value="Отключить" style="font-size: 2.5rem">
-    {% else %}
-        <input type="hidden" name="new_status" value="true">
-        <input type="submit" value="Включить" style="font-size: 2.5rem">
-    {% endif %}
-    </form>
+    <h2>{{ dot(wifi_status) }} Wi-Fi g/n</h2>
+    {{ form(wifi_status, url_for('.turn_wifi')) }}
 
-    <h2>Интерфейс</h2>
-    <form method="post" action="{{ url_for('.turn_wifi') }}">
-    {% if wifi_status %}
-        <input type="hidden" name="new_status" value="false">
-        <input type="submit" value="Отключить" style="font-size: 2.5rem">
-    {% else %}
-        <input type="hidden" name="new_status" value="true">
-        <input type="submit" value="Включить" style="font-size: 2.5rem">
-    {% endif %}
-    </form>
+    <h2>{{ dot(rule_status) }} Отключающее правило</h2>
+    {{ form(rule_status, url_for('.turn_rule')) }}
 
     <table>
     {% for line in wifi_lines %}
@@ -38,16 +41,11 @@
     {% endfor %}
     </table>
 
-    <h1>Wi-Fi дополнительный b/g/n</h1>
-    <form method="post" action="{{ url_for('.turn_wifi_ext') }}">
-    {% if wifi_ext_status %}
-        <input type="hidden" name="new_status" value="false">
-        <input type="submit" value="Отключить" style="font-size: 2.5rem">
-    {% else %}
-        <input type="hidden" name="new_status" value="true">
-        <input type="submit" value="Включить" style="font-size: 2.5rem">
-    {% endif %}
-    </form>
+    <h2>{{ dot(wifi_ext_status) }} Wi-Fi дополнительный b/g/n</h2>
+    {{ form(wifi_ext_status, url_for('.turn_wifi_ext')) }}
+
+    <h2>{{ dot(relay_status) }} Реле ({{ signal_strength }})</h2>
+    {{ form(relay_status, url_for('.turn_relay')) }}
 
 </body>
 </html>

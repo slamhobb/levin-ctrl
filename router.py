@@ -1,7 +1,7 @@
 from typing import List, Tuple
-import subprocess as sp
 from enum import Enum
 from config import config
+import subprocess as sp
 
 
 class RouterType(Enum):
@@ -9,7 +9,7 @@ class RouterType(Enum):
     WIFI = 2
 
 
-def get_data():
+def get_router_data():
     command1 = ' '.join([
         ':if [/system scheduler get turnoff-wifi disabled] do= { :put false } else= { :put true };',
         ':if [/interface get wlan1 disabled] do= { :put false } else= { :put true };',
