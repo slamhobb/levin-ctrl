@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Лёвин-контроль</title>
+
+</head>
+<body>
+    <a href="{{ url_for('ctrl.index') }}">Контроль</a>
+    <a href="{{ url_for('.index', log_type=1) }}">Логи IP</a>
+    <a href="{{ url_for('.index', log_type=2) }}">Логи 40x</a>
+    <a href="{{ url_for('.index', log_type=3) }}">Логи PHP</a>
+
+    <h2>Логи</h2>
+    <table>
+    {% for line in log_lines %}
+        <tr>
+            <td><span>{{ line }}</span></td>
+        </tr>
+    {% endfor %}
+    </table>
+
+</body>
+</html>

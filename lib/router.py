@@ -1,7 +1,7 @@
 from typing import List, Tuple
 from enum import Enum
-from config import config
 import subprocess as sp
+from lib.config import config
 
 
 class RouterType(Enum):
@@ -9,7 +9,7 @@ class RouterType(Enum):
     WIFI = 2
 
 
-def get_router_data():
+def get_router_data() -> Tuple[bool, bool, List[str], bool]:
     command1 = ' '.join([
         ':if [/system scheduler get turnoff-wifi disabled] do= { :put false } else= { :put true };',
         ':if [/interface get wlan1 disabled] do= { :put false } else= { :put true };',
@@ -40,17 +40,17 @@ def get_router_data():
     return rule_status, wifi_status, wifi_lines, wifi_ext_status
 
 
-def set_wifi(new_status):
+def set_wifi(new_status: bool):
     disabled = 'no' if new_status else 'yes'
     _ssh_query(f'/interface wireless set wlan1 disabled={disabled}', RouterType.WIFI)
 
 
-def set_rule(new_status):
+def set_rule(new_status: bool):
     disabled = 'no' if new_status else 'yes'
     _ssh_query(f'/system scheduler set turnoff-wifi disabled={disabled}', RouterType.WIFI)
 
 
-def set_wifi_ext(new_status):
+def set_wifi_ext(new_status: bool):
     disabled = 'no' if new_status else 'yes'
     _ssh_query(f'/interface wireless set wlan1 disabled={disabled}', RouterType.MAIN)
 

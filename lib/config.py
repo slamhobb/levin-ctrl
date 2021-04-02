@@ -3,7 +3,7 @@ import json
 
 _basedir = path.abspath(path.dirname(__file__))
 
-_config_path = path.join(_basedir, '..', 'levin-ctrl-cfg', 'config.json')
+_config_path = path.join(_basedir, '..', '..', 'levin-ctrl-cfg', 'config.json')
 
 
 def get_config():

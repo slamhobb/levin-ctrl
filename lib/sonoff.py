@@ -1,6 +1,6 @@
 from typing import Tuple
-from config import config
 import requests
+from lib.config import config
 
 _timeout = 2
 
@@ -26,7 +26,7 @@ def get_relay_data() -> Tuple[bool, str]:
         return False, "Ошибка"
 
 
-def set_relay(new_status):
+def set_relay(new_status: bool):
     addr = config['RELAY_ADDR']
     url = f'http://{addr}/zeroconf/switch'
 

@@ -47,5 +47,9 @@
     <h2>{{ dot(relay_status) }} Реле ({{ signal_strength }})</h2>
     {{ form(relay_status, url_for('.turn_relay')) }}
 
+    <p>
+        <a href="{{ url_for('log.index') }}">Логи</a>
+    </p>
+
 </body>
 </html>
