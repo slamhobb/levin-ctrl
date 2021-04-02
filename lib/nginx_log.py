@@ -1,6 +1,7 @@
 from typing import List
 from enum import Enum
 import subprocess as sp
+from lib.config import config
 
 
 class LogType(Enum):
@@ -22,21 +23,26 @@ LOG_FOLDER = '/var/log/nginx'
 
 
 def get_ip_log() -> List[str]:
-    cmd = f"cat {LOG_FOLDER}/access.log {LOG_FOLDER}/access.log.1"
+    cmd = _get_logs_cmd()
     cmd += " | awk '{print $1}' | sort | uniq -c | sort -rn"
     return _exec_command(cmd)
 
 
 def get_40x_log() -> List[str]:
-    cmd = f"cat {LOG_FOLDER}/access.log {LOG_FOLDER}/access.log.1"
+    cmd = _get_logs_cmd()
     cmd += " | awk '($9 ~ /40./)' | awk '{print $9, $1, $7}' | sort | uniq -c | sort -rn"
     return _exec_command(cmd)
 
 
 def get_php_log() -> List[str]:
-    cmd = f"cat {LOG_FOLDER}/access.log {LOG_FOLDER}/access.log.1"
+    cmd = _get_logs_cmd()
     cmd += " | awk '($7 ~ /php/)' | awk '{print $1, $7}' | sort | uniq -c | sort -rn"
     return _exec_command(cmd)
+
+
+def _get_logs_cmd() -> str:
+    log_path = config["NGINX_LOG_PATH"]
+    return f"cat {log_path}/access.log {log_path}/access.log.1"
 
 
 def _exec_command(cmd: str) -> List[str]:
