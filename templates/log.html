@@ -8,15 +8,24 @@
 </head>
 <body>
     <a href="{{ url_for('ctrl.index') }}">Контроль</a>
-    <a href="{{ url_for('.index', log_type=1) }}">Логи IP</a>
-    <a href="{{ url_for('.index', log_type=2) }}">Логи 40x</a>
-    <a href="{{ url_for('.index', log_type=3) }}">Логи PHP</a>
+    <a href="{{ url_for('.index', log_type=LogType.IP.value) }}">Логи IP</a>
+    <a href="{{ url_for('.index', log_type=LogType.STATUS.value, param="40.") }}">Логи 40x</a>
+    <a href="{{ url_for('.index', log_type=LogType.URL.value, param="php") }}">Логи PHP</a>
 
     <h2>Логи</h2>
+
+    <form method="get" action="{{ url_for('.index') }}">
+        <input type="hidden" name="log_type" value="{{ log_type.value }}" />
+        <input type="text" name="param" value="{{ param }}" />
+        <input type="submit" value="Фильтровать" />
+    </form>
+
     <table>
     {% for line in log_lines %}
         <tr>
-            <td><span>{{ line }}</span></td>
+            {% for cell in line.split() %}
+                <td>{{ cell }}</td>
+            {% endfor %}
         </tr>
     {% endfor %}
     </table>

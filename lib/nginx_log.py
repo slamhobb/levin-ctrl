@@ -6,17 +6,17 @@ from lib.config import config
 
 class LogType(Enum):
     IP = 1
-    STATUS_40x = 2
-    PHP = 3
+    STATUS = 2
+    URL = 3
 
 
-def get_log(log_type: LogType) -> List[str]:
+def get_log(log_type: LogType, param: str) -> List[str]:
     if log_type == LogType.IP:
         return get_ip_log()
-    if log_type == LogType.STATUS_40x:
-        return get_40x_log()
-    if log_type == LogType.PHP:
-        return get_php_log()
+    if log_type == LogType.STATUS:
+        return get_status_log(param)
+    if log_type == LogType.URL:
+        return get_url_log(param)
 
 
 LOG_FOLDER = '/var/log/nginx'
@@ -24,20 +24,22 @@ LOG_FOLDER = '/var/log/nginx'
 
 def get_ip_log() -> List[str]:
     cmd = _get_logs_cmd()
-    cmd += " | awk '{print $1}' | sort | uniq -c | sort -rn"
-    return _exec_command(cmd)
+    total = _exec(cmd + " | awk '{print $1}' | sort | uniq -c | sort -rn")
+    return _union(total, [])
 
 
-def get_40x_log() -> List[str]:
+def get_status_log(status) -> List[str]:
     cmd = _get_logs_cmd()
-    cmd += " | awk '($9 ~ /40./)' | awk '{print $9, $1, $7}' | sort | uniq -c | sort -rn"
-    return _exec_command(cmd)
+    total = _exec(cmd + f" | awk '($9 ~ /{status}/)' | " + "awk '{print $9, $1}' | sort | uniq -c | sort -rn")
+    detail = _exec(cmd + f" | awk '($9 ~ /{status}/)' | " + "awk '{print $9, $1, $7}' | sort | uniq -c | sort -rn")
+    return _union(total, detail)
 
 
-def get_php_log() -> List[str]:
+def get_url_log(url) -> List[str]:
     cmd = _get_logs_cmd()
-    cmd += " | awk '($7 ~ /php/)' | awk '{print $1, $7}' | sort | uniq -c | sort -rn"
-    return _exec_command(cmd)
+    total = _exec(cmd + f" | awk '($7 ~ /{url}/)' | " + "awk '{print $1}' | sort | uniq -c | sort -rn")
+    detail = _exec(cmd + f" | awk '($7 ~ /{url}/)' | " + "awk '{print $1, $7}' | sort | uniq -c | sort -rn")
+    return _union(total, detail)
 
 
 def _get_logs_cmd() -> str:
@@ -45,6 +47,17 @@ def _get_logs_cmd() -> str:
     return f"cat {log_path}/access.log {log_path}/access.log.1"
 
 
-def _exec_command(cmd: str) -> List[str]:
+def _exec(cmd: str) -> List[str]:
     result = sp.getoutput(cmd)
     return result.split('\n')
+
+
+def _union(total: List[str], detail: List[str]) -> List[str]:
+    if len(detail) == 0:
+        return total
+
+    result = []
+    result.extend(total)
+    total.extend(['-------'])
+    total.extend(detail)
+    return total

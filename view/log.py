@@ -1,13 +1,15 @@
-from flask import render_template, Blueprint
+from flask import render_template, Blueprint, request
 from lib.nginx_log import LogType, get_log
 
 log = Blueprint('log', __name__)
 
 
 @log.route('/')
-@log.route('/<int:log_type>')
-def index(log_type=LogType.IP):
-    log_type = LogType(log_type)
-    log_lines = get_log(log_type)
+def index():
+    log_type = int(request.args.get('log_type', LogType.IP.value))
+    param = request.args.get('param', '')
 
-    return render_template('log.html', log_lines=log_lines)
+    log_type = LogType(log_type)
+    log_lines = get_log(log_type, param)
+
+    return render_template('log.html', LogType=LogType, log_type=log_type, param=param, log_lines=log_lines)
