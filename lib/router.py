@@ -76,12 +76,10 @@ def _ssh_multi_query(queries: List[Tuple[str, RouterType]]) -> List[str]:
 def _build_command(query: str, router_type: RouterType) -> str:
     if router_type == RouterType.MAIN:
         addr = config['MAIN_ROUTER_ADDR']
-        pwd = config['MAIN_ROUTER_PASSWD']
-        return f"sshpass -p '{pwd}' ssh {addr} '{query}'"
+        return f"ssh {addr} '{query}'"
 
     if router_type == RouterType.WIFI:
         addr = config['WIFI_ROUTER_ADDR']
-        pwd = config['WIFI_ROUTER_PASSWD']
-        return f"sshpass -p '{pwd}' ssh {addr} '{query}'"
+        return f"ssh {addr} '{query}'"
 
     raise Exception(f'Unsupported RouterType = {router_type}')
