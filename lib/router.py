@@ -55,6 +55,11 @@ def set_wifi_ext(new_status: bool):
     _ssh_query(f'/interface wireless set wlan1 disabled={disabled}', RouterType.MAIN)
 
 
+def get_black_list() -> List[str]:
+    result = _ssh_query(':ip firewall address-list print where list=NginxBanList', RouterType.MAIN)
+    return result.split('\n')
+
+
 def _ssh_query(query: str, router_type: RouterType) -> str:
     cmd = _build_command(query, router_type)
     return sp.getoutput(cmd)

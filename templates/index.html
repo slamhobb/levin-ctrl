@@ -36,7 +36,7 @@
     <table>
     {% for line in wifi_lines %}
         <tr>
-            <td><pre>{{ line }}</pre></td>
+            <td><pre style="margin: 0">{{ line }}</pre></td>
         </tr>
     {% endfor %}
     </table>
@@ -49,6 +49,7 @@
 
     <p>
         <a href="{{ url_for('log.index') }}">Логи</a>
+        <a href="{{ url_for('black.index') }}">Black list</a>
     </p>
 
 </body>
