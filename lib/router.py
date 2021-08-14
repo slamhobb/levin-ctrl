@@ -9,14 +9,17 @@ class RouterType(Enum):
     WIFI = 2
 
 
-def get_router_data() -> Tuple[bool, bool, List[str], bool]:
+def get_router_data() -> Tuple[bool, bool, List[str], bool, bool]:
     command1 = ' '.join([
         ':if [/system scheduler get turnoff-wifi disabled] do= { :put false } else= { :put true };',
         ':if [/interface get wlan1 disabled] do= { :put false } else= { :put true };',
-        '/interface wireless registration-table print'
+        '/interface wireless registration-table print;',
     ])
 
-    command2 = ':if [/interface get wlan1 disabled] do= { :put false } else= { :put true };'
+    command2 = ''.join([
+        ':if [/interface get wlan1 disabled] do= { :put false } else= { :put true };',
+        ':if [/ip firewall mangle get [find comment="traffic from DimaPhone to ISP1"] disabled] do= { :put true } else= { :put false };'
+    ])
 
     queries = [
         (command1, RouterType.WIFI),
@@ -25,19 +28,25 @@ def get_router_data() -> Tuple[bool, bool, List[str], bool]:
 
     [result1, result2] = _ssh_multi_query(queries)
 
-    lines = result1.split('\n')
+    lines1 = result1.split('\n')
 
-    rule_status = lines.pop(0)
+    rule_status = lines1.pop(0)
     rule_status = rule_status == 'true'
 
-    wifi_status = lines.pop(0)
+    wifi_status = lines1.pop(0)
     wifi_status = wifi_status == 'true'
 
-    wifi_lines = lines
+    wifi_lines = lines1
 
-    wifi_ext_status = result2.split('\n')[0] == 'true'
+    lines2 = result2.split('\n')
 
-    return rule_status, wifi_status, wifi_lines, wifi_ext_status
+    wifi_ext_status = lines2.pop(0)
+    wifi_ext_status = wifi_ext_status == 'true'
+
+    dimaphone_tunnel_status = lines2.pop(0)
+    dimaphone_tunnel_status = dimaphone_tunnel_status == 'true'
+
+    return rule_status, wifi_status, wifi_lines, wifi_ext_status, dimaphone_tunnel_status
 
 
 def set_wifi(new_status: bool):
@@ -55,8 +64,14 @@ def set_wifi_ext(new_status: bool):
     _ssh_query(f'/interface wireless set wlan1 disabled={disabled}', RouterType.MAIN)
 
 
+def set_dimaphone_tunnel(new_status: bool):
+    disabled = 'yes' if new_status else 'no'
+    _ssh_query(f'/ip firewall mangle set [find comment="traffic from DimaPhone to ISP1"] disabled={disabled}', RouterType.MAIN)
+    _ssh_query('/ip firewall connection remove [find src-address~"192.168.0.105"];', RouterType.MAIN)
+
+
 def get_black_list() -> List[str]:
-    result = _ssh_query(':ip firewall address-list print where list=NginxBanList', RouterType.MAIN)
+    result = _ssh_query('/ip firewall address-list print where list=NginxBanList', RouterType.MAIN)
     return result.split('\n')
 
 

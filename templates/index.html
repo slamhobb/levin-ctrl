@@ -44,6 +44,9 @@
     <h2>{{ dot(wifi_ext_status) }} Wi-Fi дополнительный b/g/n</h2>
     {{ form(wifi_ext_status, url_for('.turn_wifi_ext')) }}
 
+    <h2>{{ dot(dimaphone_tunnel_status) }} Тоннель DimaPhone</h2>
+    {{ form(dimaphone_tunnel_status, url_for('.turn_dimaphone_tunnel')) }}
+
     <h2>{{ dot(relay_status) }} Реле ({{ signal_strength }})</h2>
     {{ form(relay_status, url_for('.turn_relay')) }}
 
