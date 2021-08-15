@@ -2,6 +2,7 @@ from typing import List, Tuple
 from enum import Enum
 import subprocess as sp
 from lib.config import config
+from lib.models.router_data import RouterData
 
 
 class RouterType(Enum):
@@ -9,7 +10,7 @@ class RouterType(Enum):
     WIFI = 2
 
 
-def get_router_data() -> Tuple[bool, bool, List[str], bool, bool]:
+def get_router_data() -> RouterData:
     command1 = ' '.join([
         ':if [/system scheduler get turnoff-wifi disabled] do= { :put false } else= { :put true };',
         ':if [/interface get wlan1 disabled] do= { :put false } else= { :put true };',
@@ -18,7 +19,8 @@ def get_router_data() -> Tuple[bool, bool, List[str], bool, bool]:
 
     command2 = ''.join([
         ':if [/interface get wlan1 disabled] do= { :put false } else= { :put true };',
-        ':if [/ip firewall mangle get [find comment="traffic from DimaPhone to ISP1"] disabled] do= { :put true } else= { :put false };'
+        ':if [/ip firewall mangle get [find comment="traffic from DimaPhone to ISP1"] disabled] do= { :put true } else= { :put false };',
+        ':if [/ip firewall mangle get [find comment="traffic from Demkon to ISP1"] disabled] do= { :put true } else= { :put false };'
     ])
 
     queries = [
@@ -46,7 +48,16 @@ def get_router_data() -> Tuple[bool, bool, List[str], bool, bool]:
     dimaphone_tunnel_status = lines2.pop(0)
     dimaphone_tunnel_status = dimaphone_tunnel_status == 'true'
 
-    return rule_status, wifi_status, wifi_lines, wifi_ext_status, dimaphone_tunnel_status
+    demkon_tunnel_status = lines2.pop(0)
+    demkon_tunnel_status = demkon_tunnel_status == 'true'
+
+    return RouterData(
+        rule_status=rule_status,
+        wifi_status=wifi_status,
+        wifi_lines=wifi_lines,
+        wifi_ext_status=wifi_ext_status,
+        dimaphone_tunnel_status=dimaphone_tunnel_status,
+        demkon_tunnel_status=demkon_tunnel_status)
 
 
 def set_wifi(new_status: bool):
@@ -68,6 +79,12 @@ def set_dimaphone_tunnel(new_status: bool):
     disabled = 'yes' if new_status else 'no'
     _ssh_query(f'/ip firewall mangle set [find comment="traffic from DimaPhone to ISP1"] disabled={disabled}', RouterType.MAIN)
     _ssh_query('/ip firewall connection remove [find src-address~"192.168.0.105"];', RouterType.MAIN)
+
+
+def set_demkon_tunnel(new_status: bool):
+    disabled = 'yes' if new_status else 'no'
+    _ssh_query(f'/ip firewall mangle set [find comment="traffic from Demkon to ISP1"] disabled={disabled}', RouterType.MAIN)
+    _ssh_query('/ip firewall connection remove [find src-address~"192.168.0.103"];', RouterType.MAIN)
 
 
 def get_black_list() -> List[str]:

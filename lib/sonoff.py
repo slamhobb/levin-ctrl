@@ -1,11 +1,11 @@
-from typing import Tuple
 import requests
 from lib.config import config
+from lib.models.relay_data import RelayData
 
 _timeout = 2
 
 
-def get_relay_data() -> Tuple[bool, str]:
+def get_relay_data() -> RelayData:
     addr = config['RELAY_ADDR']
     url = f'http://{addr}/zeroconf/info'
 
@@ -20,10 +20,14 @@ def get_relay_data() -> Tuple[bool, str]:
         signal_strength = data['signalStrength']
         signal_strength_str = f'{signal_strength} дБ'
 
-        return relay_status, signal_strength_str
+        return RelayData(
+            relay_status=relay_status,
+            signal_strength=signal_strength_str)
 
     except requests.exceptions.ConnectionError:
-        return False, "Ошибка"
+        return RelayData(
+            relay_status=False,
+            signal_strength='Ошибка')
 
 
 def set_relay(new_status: bool):

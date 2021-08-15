@@ -27,28 +27,31 @@
 
 </head>
 <body>
-    <h2>{{ dot(wifi_status) }} Wi-Fi g/n</h2>
-    {{ form(wifi_status, url_for('.turn_wifi')) }}
+    <h2>{{ dot(router_data.wifi_status) }} Wi-Fi g/n</h2>
+    {{ form(router_data.wifi_status, url_for('.turn_wifi')) }}
 
-    <h2>{{ dot(rule_status) }} Отключающее правило</h2>
-    {{ form(rule_status, url_for('.turn_rule')) }}
+    <h2>{{ dot(router_data.rule_status) }} Отключающее правило</h2>
+    {{ form(router_data.rule_status, url_for('.turn_rule')) }}
 
     <table>
-    {% for line in wifi_lines %}
+    {% for line in router_data.wifi_lines %}
         <tr>
             <td><pre style="margin: 0">{{ line }}</pre></td>
         </tr>
     {% endfor %}
     </table>
 
-    <h2>{{ dot(wifi_ext_status) }} Wi-Fi дополнительный b/g/n</h2>
-    {{ form(wifi_ext_status, url_for('.turn_wifi_ext')) }}
+    <h2>{{ dot(router_data.wifi_ext_status) }} Wi-Fi дополнительный b/g/n</h2>
+    {{ form(router_data.wifi_ext_status, url_for('.turn_wifi_ext')) }}
 
-    <h2>{{ dot(dimaphone_tunnel_status) }} Тоннель DimaPhone</h2>
-    {{ form(dimaphone_tunnel_status, url_for('.turn_dimaphone_tunnel')) }}
+    <h2>{{ dot(router_data.dimaphone_tunnel_status) }} Тоннель DimaPhone</h2>
+    {{ form(router_data.dimaphone_tunnel_status, url_for('.turn_dimaphone_tunnel')) }}
 
-    <h2>{{ dot(relay_status) }} Реле ({{ signal_strength }})</h2>
-    {{ form(relay_status, url_for('.turn_relay')) }}
+    <h2>{{ dot(router_data.demkon_tunnel_status) }} Тоннель Demkon</h2>
+    {{ form(router_data.demkon_tunnel_status, url_for('.turn_demkon_tunnel')) }}
+
+    <h2>{{ dot(relay_data.relay_status) }} Реле ({{ relay_data.signal_strength }})</h2>
+    {{ form(relay_data.relay_status, url_for('.turn_relay')) }}
 
     <p>
         <a href="{{ url_for('log.index') }}">Логи</a>

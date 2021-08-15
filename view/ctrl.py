@@ -1,5 +1,5 @@
 from flask import render_template, redirect, url_for, request, Blueprint
-from lib.router import get_router_data, set_wifi, set_wifi_ext, set_rule, set_dimaphone_tunnel
+from lib.router import get_router_data, set_wifi, set_wifi_ext, set_rule, set_dimaphone_tunnel, set_demkon_tunnel
 from lib.sonoff import get_relay_data, set_relay
 
 ctrl = Blueprint('ctrl', __name__)
@@ -7,16 +7,10 @@ ctrl = Blueprint('ctrl', __name__)
 
 @ctrl.route('/')
 def index():
-    rule_status, wifi_status, \
-     wifi_lines, wifi_ext_status, \
-     dimaphone_tunnel_status = get_router_data()
+    router_data = get_router_data()
+    relay_data = get_relay_data()
 
-    relay_status, signal_strength = get_relay_data()
-
-    return render_template('index.html', rule_status=rule_status,
-                           wifi_status=wifi_status, wifi_lines=wifi_lines,
-                           wifi_ext_status=wifi_ext_status, dimaphone_tunnel_status=dimaphone_tunnel_status,
-                           relay_status=relay_status, signal_strength=signal_strength)
+    return render_template('index.html', router_data=router_data, relay_data=relay_data)
 
 
 @ctrl.route('/turn-rule', methods=['POST'])
@@ -44,6 +38,13 @@ def turn_wifi_ext():
 def turn_dimaphone_tunnel():
     new_status = _bool_parse(request.form['new_status'])
     set_dimaphone_tunnel(new_status)
+    return redirect(url_for('.index'))
+
+
+@ctrl.route('/turn-demkon-tunnel', methods=['POST'])
+def turn_demkon_tunnel():
+    new_status = _bool_parse(request.form['new_status'])
+    set_demkon_tunnel(new_status)
     return redirect(url_for('.index'))
 
 
