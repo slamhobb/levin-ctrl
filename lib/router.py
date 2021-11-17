@@ -78,13 +78,13 @@ def set_wifi_ext(new_status: bool):
 def set_dimaphone_tunnel(new_status: bool):
     disabled = 'yes' if new_status else 'no'
     _ssh_query(f'/ip firewall mangle set [find comment="traffic from DimaPhone to ISP1"] disabled={disabled}', RouterType.MAIN)
-    _ssh_query('/ip firewall connection remove [find src-address~"192.168.0.105"];', RouterType.MAIN)
+    _ssh_query('/ip firewall connection remove [find src-address~"192.168.88.105"];', RouterType.MAIN)
 
 
 def set_demkon_tunnel(new_status: bool):
     disabled = 'yes' if new_status else 'no'
     _ssh_query(f'/ip firewall mangle set [find comment="traffic from Demkon to ISP1"] disabled={disabled}', RouterType.MAIN)
-    _ssh_query('/ip firewall connection remove [find src-address~"192.168.0.103"];', RouterType.MAIN)
+    _ssh_query('/ip firewall connection remove [find src-address~"192.168.88.103"];', RouterType.MAIN)
 
 
 def get_black_list() -> List[str]:
