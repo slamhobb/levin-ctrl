@@ -1,0 +1,19 @@
+{% macro dot(status) -%}
+    {% if status %}
+        <span style="color: lawngreen">&#9679;</span>
+    {% else %}
+        <span style="color: lightslategray">&#9679;</span>
+    {% endif %}
+{%- endmacro  %}
+
+{%  macro form(status, url) -%}
+    <form method="post" action="{{ url }}">
+    {% if status %}
+        <input type="hidden" name="new_status" value="false">
+        <input type="submit" value="Отключить" style="font-size: 2.5rem">
+    {% else %}
+        <input type="hidden" name="new_status" value="true">
+        <input type="submit" value="Включить" style="font-size: 2.5rem">
+    {% endif %}
+    </form>
+{%- endmacro %}

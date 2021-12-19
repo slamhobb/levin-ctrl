@@ -1,22 +1,4 @@
-{% macro dot(status) -%}
-    {% if status %}
-        <span style="color: lawngreen">&#9679;</span>
-    {% else %}
-        <span style="color: lightslategray">&#9679;</span>
-    {% endif %}
-{%- endmacro  %}
-
-{%  macro form(status, url) -%}
-    <form method="post" action="{{ url }}">
-    {% if status %}
-        <input type="hidden" name="new_status" value="false">
-        <input type="submit" value="Отключить" style="font-size: 2.5rem">
-    {% else %}
-        <input type="hidden" name="new_status" value="true">
-        <input type="submit" value="Включить" style="font-size: 2.5rem">
-    {% endif %}
-    </form>
-{%- endmacro %}
+{% import 'macros.j2' as macros %}
 
 <!doctype html>
 <html lang="en">
@@ -24,14 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Лёвин-контроль</title>
-
 </head>
 <body>
-    <h2>{{ dot(router_data.wifi_status) }} Wi-Fi g/n</h2>
-    {{ form(router_data.wifi_status, url_for('.turn_wifi')) }}
 
-    <h2>{{ dot(router_data.rule_status) }} Отключающее правило</h2>
-    {{ form(router_data.rule_status, url_for('.turn_rule')) }}
+    <h2>{{ macros.dot(router_data.wifi_status) }} Wi-Fi g/n</h2>
+    {{ macros.form(router_data.wifi_status, url_for('.turn_wifi')) }}
+
+    <h2>{{ macros.dot(router_data.rule_status) }} Отключающее правило</h2>
+    {{ macros.form(router_data.rule_status, url_for('.turn_rule')) }}
 
     <table>
     {% for line in router_data.wifi_lines %}
@@ -41,17 +23,20 @@
     {% endfor %}
     </table>
 
-    <h2>{{ dot(router_data.wifi_ext_status) }} Wi-Fi дополнительный b/g/n</h2>
-    {{ form(router_data.wifi_ext_status, url_for('.turn_wifi_ext')) }}
+    <h2>{{ macros.dot(router_data.wifi_ext_status) }} Wi-Fi дополнительный b/g/n</h2>
+    {{ macros.form(router_data.wifi_ext_status, url_for('.turn_wifi_ext')) }}
 
-    <h2>{{ dot(router_data.dimaphone_tunnel_status) }} Тоннель DimaPhone</h2>
-    {{ form(router_data.dimaphone_tunnel_status, url_for('.turn_dimaphone_tunnel')) }}
+    <h2>{{ macros.dot(router_data.dimaphone_tunnel_status) }} Тоннель DimaPhone</h2>
+    {{ macros.form(router_data.dimaphone_tunnel_status, url_for('.turn_dimaphone_tunnel')) }}
 
-    <h2>{{ dot(router_data.demkon_tunnel_status) }} Тоннель Demkon</h2>
-    {{ form(router_data.demkon_tunnel_status, url_for('.turn_demkon_tunnel')) }}
+    <h2>{{ macros.dot(router_data.demkon_tunnel_status) }} Тоннель Demkon</h2>
+    {{ macros.form(router_data.demkon_tunnel_status, url_for('.turn_demkon_tunnel')) }}
 
-    <h2>{{ dot(relay_data.relay_status) }} Реле ({{ relay_data.signal_strength }})</h2>
-    {{ form(relay_data.relay_status, url_for('.turn_relay')) }}
+    <h2>{{ macros.dot(relay1_data.relay_status) }} Реле 1 ({{ relay1_data.signal_strength }})</h2>
+    {{ macros.form(relay1_data.relay_status, url_for('.turn_relay1')) }}
+
+    <h2>{{ macros.dot(relay2_data.relay_status) }} Реле 2 ({{ relay2_data.signal_strength }})</h2>
+    {{ macros.form(relay2_data.relay_status, url_for('.turn_relay2')) }}
 
     <p>
         <a href="{{ url_for('log.index') }}">Логи</a>
