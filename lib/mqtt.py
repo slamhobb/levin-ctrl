@@ -11,22 +11,17 @@ mqtt_client: mqtt.Client
 
 mqtt_state = MqttData(
     connected=False,
-    devices={})
+    devices={}
+)
 
 
 def run_mqtt():
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
+    client.on_disconnect = on_disconnect
 
     client.connect(config["MQTT"]["SERVER_ADDR"], 1883, 60)
-
-    device_topics = config["MQTT"]["DEVICE_TOPICS"]
-
-    for topic in device_topics:
-        mqtt_state.devices[topic] = MqttDeviceData(name=topic, state=False, signal_strength='Неизвестно')
-
-        client.subscribe(topic)
 
     client.loop_start()
 
@@ -35,8 +30,21 @@ def run_mqtt():
 
 
 def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        mqtt_state.connected = True
+    if rc != 0:
+        return
+
+    mqtt_state.connected = True
+
+    device_topics = config["MQTT"]["DEVICE_TOPICS"]
+    for topic in device_topics:
+        mqtt_state.devices[topic] = MqttDeviceData(name=topic, state=False, signal_strength='Неизвестно')
+
+        client.subscribe(topic)
+
+
+def on_disconnect(client, userdata, rc):
+    mqtt_state.connected = False
+    mqtt_state.devices = {}
 
 
 def on_message(client, userdata, msg):
