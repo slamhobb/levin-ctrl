@@ -1,6 +1,7 @@
 from flask import render_template, redirect, request, Blueprint
 from lib.router import get_router_data, set_wifi, set_wifi_ext, set_rule, set_dimaphone_tunnel, set_demkon_tunnel
 from lib.sonoff import RelayType, get_relay_data, set_relay
+from lib.mqtt import get_devices_data, set_device_state
 
 ctrl = Blueprint('ctrl', __name__)
 
@@ -10,8 +11,10 @@ def index():
     router_data = get_router_data()
     relay1_data = get_relay_data(RelayType.RELAY1)
     relay2_data = get_relay_data(RelayType.RELAY2)
+    mqtt_devices_data = get_devices_data()
 
-    return render_template('index.html', router_data=router_data, relay1_data=relay1_data, relay2_data=relay2_data)
+    return render_template('index.html', router_data=router_data, relay1_data=relay1_data, relay2_data=relay2_data,
+                           mqtt_devices_data=mqtt_devices_data)
 
 
 @ctrl.route('/lights')
@@ -67,6 +70,14 @@ def turn_relay1():
 def turn_relay2():
     new_status = _bool_parse(request.form['new_status'])
     set_relay(RelayType.RELAY2, new_status)
+    return redirect(request.referrer)
+
+
+@ctrl.route('/turn-mqtt-device', methods=['POST'])
+def turn_mqtt_device():
+    device_name = request.form['device_name']
+    new_state = _bool_parse(request.form['new_status'])
+    set_device_state(device_name, new_state)
     return redirect(request.referrer)
 
 

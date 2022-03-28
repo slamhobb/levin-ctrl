@@ -6,8 +6,9 @@
     {% endif %}
 {%- endmacro  %}
 
-{%  macro form(status, url) -%}
+{%  macro form(status, url, name=None) -%}
     <form method="post" action="{{ url }}">
+        <input type="hidden" name="device_name" value="{{ name }}">
     {% if status %}
         <input type="hidden" name="new_status" value="false">
         <input type="submit" value="Отключить" style="font-size: 2.5rem">
