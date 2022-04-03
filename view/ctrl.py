@@ -1,3 +1,5 @@
+from infrastructure.parallel import run_parallel
+
 from flask import render_template, redirect, request, Blueprint
 from lib.router import get_router_data, set_wifi, set_wifi_ext, set_rule, set_dimaphone_tunnel, set_demkon_tunnel
 from lib.sonoff import RelayType, get_relay_data, set_relay
@@ -8,9 +10,11 @@ ctrl = Blueprint('ctrl', __name__)
 
 @ctrl.route('/')
 def index():
-    router_data = get_router_data()
-    relay1_data = get_relay_data(RelayType.RELAY1)
-    relay2_data = get_relay_data(RelayType.RELAY2)
+    results = run_parallel([get_router_data, get_relay_data, get_relay_data],
+                           [None, RelayType.RELAY1, RelayType.RELAY2])
+    router_data = results[0]
+    relay1_data = results[1]
+    relay2_data = results[2]
     mqtt_devices_data = get_devices_data()
 
     return render_template('index.html', router_data=router_data, relay1_data=relay1_data, relay2_data=relay2_data,
