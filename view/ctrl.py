@@ -1,9 +1,9 @@
 from infrastructure.parallel import run_parallel
 
-from flask import render_template, redirect, request, Blueprint
+from flask import render_template, redirect, request, Blueprint, jsonify, Response
 from lib.router import get_router_data, set_wifi, set_wifi_ext, set_rule, set_dimaphone_tunnel, set_demkon_tunnel
 from lib.sonoff import RelayType, get_relay_data, set_relay
-from lib.mqtt import get_devices_data, set_device_state
+from lib.mqtt import get_devices, get_device, set_switch_device_state
 
 ctrl = Blueprint('ctrl', __name__)
 
@@ -15,10 +15,10 @@ def index():
     router_data = results[0]
     relay1_data = results[1]
     relay2_data = results[2]
-    mqtt_devices_data = get_devices_data()
+    mqtt_devices = get_devices()
 
     return render_template('index.html', router_data=router_data, relay1_data=relay1_data, relay2_data=relay2_data,
-                           mqtt_devices_data=mqtt_devices_data)
+                           mqtt_devices=mqtt_devices)
 
 
 @ctrl.route('/lights')
@@ -77,12 +77,23 @@ def turn_relay2():
     return redirect(request.referrer)
 
 
-@ctrl.route('/turn-mqtt-device', methods=['POST'])
-def turn_mqtt_device():
+@ctrl.route('/turn-mqtt-switch', methods=['POST'])
+def turn_mqtt_switch():
     device_name = request.form['device_name']
-    new_state = _bool_parse(request.form['new_status'])
-    set_device_state(device_name, new_state)
+    new_state = _bool_parse(request.form['new_state'])
+    set_switch_device_state(device_name, new_state)
+
+    if request.referrer is None:
+        return Response(status=200)
+
     return redirect(request.referrer)
+
+
+@ctrl.route('/get-mqtt-device', methods=['POST'])
+def get_mqtt_device():
+    device_name = request.form['device_name']
+    device = get_device(device_name)
+    return jsonify(device.__dict__)
 
 
 def _bool_parse(value: str) -> bool:

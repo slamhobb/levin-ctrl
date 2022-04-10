@@ -5,7 +5,8 @@ import json
 import paho.mqtt.client as mqtt
 
 from lib.config import config
-from lib.models.mqtt_data import MqttData, MqttDeviceData
+from lib.models.mqtt_data import MqttData, MqttDevice, DeviceType
+from lib.mqtt_device_mapper import map_device
 
 mqtt_client: mqtt.Client
 
@@ -35,9 +36,13 @@ def on_connect(client, userdata, flags, rc):
 
     mqtt_state.connected = True
 
-    device_topics = config["MQTT"]["DEVICE_TOPICS"]
-    for topic in device_topics:
-        mqtt_state.devices[topic] = MqttDeviceData(name=topic, state=False, signal_strength='Неизвестно')
+    for device_config in config["MQTT"]["DEVICES"]:
+        topic = device_config['TOPIC']
+        device_type = DeviceType(device_config['TYPE'])
+
+        device = map_device(topic, device_type, {})
+        if device is not None:
+            mqtt_state.devices[topic] = device
 
         client.subscribe(topic)
 
@@ -50,23 +55,24 @@ def on_disconnect(client, userdata, rc):
 def on_message(client, userdata, msg):
     payload = json.loads(msg.payload)
 
-    state = payload['state'].lower() == "on"
-    signal_strength = payload['linkquality']
-    signal_strength_str = f'{signal_strength} дБ'
-
     device_name = msg.topic
-    device_data = MqttDeviceData(name=device_name, state=state, signal_strength=signal_strength_str)
+    old_device = mqtt_state.devices[device_name]
 
-    mqtt_state.devices[device_name] = device_data
-
-
-def get_devices_data() -> List[MqttDeviceData]:
-    return [value for value in mqtt_state.devices.values()]
+    mqtt_state.devices[device_name] = map_device(device_name, old_device.type, payload)
 
 
-def set_device_state(device_name, new_state):
+def get_devices() -> List[MqttDevice]:
+    return [device for device in mqtt_state.devices.values()]
+
+
+def get_device(device_name: str) -> MqttDevice:
+    return mqtt_state.devices.get(device_name, None)
+
+
+def set_switch_device_state(device_name, new_state):
     device = mqtt_state.devices.get(device_name, None)
-    device_state = 'ON' if new_state else 'OFF'
+    if device is None or device.type != DeviceType.SWITCH:
+        return
 
-    if device is not None:
-        mqtt_client.publish(f'{device.name}/set', device_state)
+    device_state = 'ON' if new_state else 'OFF'
+    mqtt_client.publish(f'{device.name}/set', device_state)

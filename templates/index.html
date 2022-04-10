@@ -38,9 +38,13 @@
     <h2>{{ macros.dot(relay2_data.relay_status) }} Реле 2 ({{ relay2_data.signal_strength }})</h2>
     {{ macros.form(relay2_data.relay_status, url_for('.turn_relay2')) }}
 
-    {% for mqtt_device in mqtt_devices_data %}
-        <h2>{{ macros.dot(mqtt_device.state) }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
-        {{ macros.form(mqtt_device.state, url_for('.turn_mqtt_device'), mqtt_device.name) }}
+    {% for mqtt_device in mqtt_devices %}
+        {% if mqtt_device.type == 'switch' %}
+          <h2>{{ macros.dot(mqtt_device.state) }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
+          {{ macros.mqtt_switch(mqtt_device) }}
+        {% elif mqtt_device.type == 'temp_hum' %}
+          <h2>{{ macros.mqtt_temp_hum(mqtt_device) }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
+        {% endif %}
     {% endfor %}
 
     <p>

@@ -6,10 +6,9 @@
     {% endif %}
 {%- endmacro  %}
 
-{%  macro form(status, url, name=None) -%}
+{%  macro form(status, url) -%}
     <form method="post" action="{{ url }}">
-        <input type="hidden" name="device_name" value="{{ name }}">
-    {% if status %}
+   {% if status %}
         <input type="hidden" name="new_status" value="false">
         <input type="submit" value="Отключить" style="font-size: 2.5rem">
     {% else %}
@@ -17,4 +16,21 @@
         <input type="submit" value="Включить" style="font-size: 2.5rem">
     {% endif %}
     </form>
+{%- endmacro %}
+
+{%  macro mqtt_switch(device) -%}
+    <form method="post" action="{{ url_for('.turn_mqtt_switch') }}">
+        <input type="hidden" name="device_name" value="{{ device.name }}">
+    {% if device.state %}
+        <input type="hidden" name="new_state" value="false">
+        <input type="submit" value="Отключить" style="font-size: 2.5rem">
+    {% else %}
+        <input type="hidden" name="new_state" value="true">
+        <input type="submit" value="Включить" style="font-size: 2.5rem">
+    {% endif %}
+    </form>
+{%- endmacro %}
+
+{% macro mqtt_temp_hum(device) -%}
+    <span style="color: DodgerBlue">Темп: {{ device.temperature }}&deg; Влажн: {{ device.humidity }}%</span>
 {%- endmacro %}
