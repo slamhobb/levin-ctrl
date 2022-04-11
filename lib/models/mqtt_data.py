@@ -6,6 +6,8 @@ from enum import Enum
 class DeviceType(str, Enum):
     SWITCH = 'switch'
     TEMP_HUM = 'temp_hum'
+    BUTTON = 'button'
+    MOTION = 'motion'
 
 
 @dataclass
@@ -16,16 +18,30 @@ class MqttDevice:
 
 
 @dataclass
+class MqttBatteryDevice:
+    battery: int = 0
+    voltage: int = 0
+
+
+@dataclass
 class MqttDeviceSwitch(MqttDevice):
     state: bool = False
 
 
 @dataclass
-class MqttDeviceTempHum(MqttDevice):
+class MqttDeviceTempHum(MqttBatteryDevice, MqttDevice):
     temperature: float = 0.0
     humidity: float = 0.0
-    battery: int = 0
-    voltage: int = 0
+
+
+@dataclass
+class MqttDeviceButton(MqttBatteryDevice, MqttDevice):
+    action: str = ''
+
+
+@dataclass
+class MqttDeviceMotion(MqttBatteryDevice, MqttDevice):
+    occupancy: bool = False
 
 
 @dataclass

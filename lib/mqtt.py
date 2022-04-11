@@ -59,6 +59,7 @@ def on_message(client, userdata, msg):
     old_device = mqtt_state.devices[device_name]
 
     mqtt_state.devices[device_name] = map_device(device_name, old_device.type, payload)
+    print(payload)
 
 
 def get_devices() -> List[MqttDevice]:
