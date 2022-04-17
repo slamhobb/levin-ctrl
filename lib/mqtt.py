@@ -47,7 +47,7 @@ def _on_disconnect(client, userdata, rc):
 
 
 def _on_message(client, userdata, msg):
-    device_name = msg.topic
+    topic = msg.topic
     payload = json.loads(msg.payload)
 
-    _on_message_func(device_name, payload)
+    _on_message_func(topic, payload)
