@@ -1,4 +1,3 @@
-from typing import List, Tuple
 from enum import Enum
 import subprocess as sp
 from lib.config import config
@@ -87,7 +86,7 @@ def set_demkon_tunnel(new_status: bool):
     _ssh_query('/ip firewall connection remove [find src-address~"192.168.88.103"];', RouterType.MAIN)
 
 
-def get_black_list() -> List[str]:
+def get_black_list() -> [str]:
     result = _ssh_query('/ip firewall address-list print where list=NginxBanList', RouterType.MAIN)
     return result.split('\n')
 
@@ -97,7 +96,7 @@ def _ssh_query(query: str, router_type: RouterType) -> str:
     return sp.getoutput(cmd)
 
 
-def _ssh_multi_query(queries: List[Tuple[str, RouterType]]) -> List[str]:
+def _ssh_multi_query(queries: [(str, RouterType)]) -> [str]:
     cmds = [_build_command(query, router_type) for (query, router_type) in queries]
 
     processes = [sp.Popen(cmd, shell=True, stdout=sp.PIPE, universal_newlines=True) for cmd in cmds]

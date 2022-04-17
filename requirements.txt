@@ -1,3 +1,4 @@
 Flask
+Inject
 requests
 paho-mqtt

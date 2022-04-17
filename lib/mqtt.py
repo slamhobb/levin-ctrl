@@ -1,79 +1,53 @@
-from typing import List
+from collections.abc import Callable
 
 import json
 
 import paho.mqtt.client as mqtt
 
 from lib.config import config
-from lib.models.mqtt_data import MqttData, MqttDevice, DeviceType
-from lib.mqtt_device_mapper import map_device
 
-mqtt_client: mqtt.Client
-
-mqtt_state = MqttData(
-    connected=False,
-    devices={}
-)
+_on_connect_func: Callable[[object], [str]]
+_on_disconnect_func: Callable[[], None]
+_on_message_func: Callable[[str, dict], None]
 
 
-def run_mqtt():
+def run_mqtt(on_connect: Callable[[object], [str]],
+             on_disconnect: Callable[[str, dict], None],
+             on_message: Callable[[str, dict], None]):
+    global _on_connect_func
+    global _on_disconnect_func
+    global _on_message_func
+
+    _on_connect_func = on_connect
+    _on_disconnect_func = on_disconnect
+    _on_message_func = on_message
+
     client = mqtt.Client()
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.on_disconnect = on_disconnect
+    client.on_connect = _on_connect
+    client.on_message = _on_message
+    client.on_disconnect = _on_disconnect
 
     client.connect(config["MQTT"]["SERVER_ADDR"], 1883, 60)
 
     client.loop_start()
 
-    global mqtt_client
-    mqtt_client = client
 
-
-def on_connect(client, userdata, flags, rc):
+def _on_connect(client, userdata, flags, rc):
     if rc != 0:
         return
 
-    mqtt_state.connected = True
+    topics = _on_connect_func(client)
 
-    for device_config in config["MQTT"]["DEVICES"]:
-        topic = device_config['TOPIC']
-        device_type = DeviceType(device_config['TYPE'])
-
-        device = map_device(topic, device_type, {})
-        if device is not None:
-            mqtt_state.devices[topic] = device
-
+    for topic in topics:
         client.subscribe(topic)
 
 
-def on_disconnect(client, userdata, rc):
-    mqtt_state.connected = False
-    mqtt_state.devices = {}
+def _on_disconnect(client, userdata, rc):
+    _on_disconnect_func()
 
 
-def on_message(client, userdata, msg):
+def _on_message(client, userdata, msg):
+    device_name = msg.topic
     payload = json.loads(msg.payload)
 
-    device_name = msg.topic
-    old_device = mqtt_state.devices[device_name]
-
-    mqtt_state.devices[device_name] = map_device(device_name, old_device.type, payload)
-    print(payload)
-
-
-def get_devices() -> List[MqttDevice]:
-    return [device for device in mqtt_state.devices.values()]
-
-
-def get_device(device_name: str) -> MqttDevice:
-    return mqtt_state.devices.get(device_name, None)
-
-
-def set_switch_device_state(device_name, new_state):
-    device = mqtt_state.devices.get(device_name, None)
-    if device is None or device.type != DeviceType.SWITCH:
-        return
-
-    device_state = 'ON' if new_state else 'OFF'
-    mqtt_client.publish(f'{device.name}/set', device_state)
+    _on_message_func(device_name, payload)

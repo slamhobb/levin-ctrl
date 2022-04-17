@@ -1,11 +1,15 @@
+import inject
+
 from infrastructure.parallel import run_parallel
 
 from flask import render_template, redirect, request, Blueprint, jsonify, Response
 from lib.router import get_router_data, set_wifi, set_wifi_ext, set_rule, set_dimaphone_tunnel, set_demkon_tunnel
 from lib.sonoff import RelayType, get_relay_data, set_relay
-from lib.mqtt import get_devices, get_device, set_switch_device_state
+from business.mqtt_service import MqttService
 
 ctrl = Blueprint('ctrl', __name__)
+
+mqtt_service = inject.instance(MqttService)
 
 
 @ctrl.route('/')
@@ -15,7 +19,7 @@ def index():
     router_data = results[0]
     relay1_data = results[1]
     relay2_data = results[2]
-    mqtt_devices = get_devices()
+    mqtt_devices = mqtt_service.get_devices()
 
     return render_template('index.html', router_data=router_data, relay1_data=relay1_data, relay2_data=relay2_data,
                            mqtt_devices=mqtt_devices)
@@ -81,7 +85,7 @@ def turn_relay2():
 def turn_mqtt_switch():
     device_name = request.form['device_name']
     new_state = _bool_parse(request.form['new_state'])
-    set_switch_device_state(device_name, new_state)
+    mqtt_service.set_switch_device_state(device_name, new_state)
 
     if request.referrer is None:
         return Response(status=200)
@@ -92,7 +96,7 @@ def turn_mqtt_switch():
 @ctrl.route('/get-mqtt-device', methods=['POST'])
 def get_mqtt_device():
     device_name = request.form['device_name']
-    device = get_device(device_name)
+    device = mqtt_service.get_device(device_name)
     return jsonify(device.__dict__)
 
 
