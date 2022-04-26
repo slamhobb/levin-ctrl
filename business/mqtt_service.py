@@ -1,3 +1,5 @@
+import inject
+
 from lib.config import config
 from lib.models.mqtt_data import MqttData, DeviceType, MqttDevice
 from business.mqtt_device_mapper import MqttDeviceMapper
@@ -5,6 +7,8 @@ from business.smart_home_logic_service import SmartHomeLogicService
 
 
 class MqttService:
+    smart_home_logic_service = inject.attr(SmartHomeLogicService)
+
     def __init__(self):
         self.mqtt_client = None
         self.mqtt_state = MqttData(
@@ -43,7 +47,7 @@ class MqttService:
         self.mqtt_state.devices[topic] = new_device
 
         if not old_device.is_equal(new_device):
-            SmartHomeLogicService.on_change_device(new_device, self.set_switch_device_state)
+            self.smart_home_logic_service.on_change_device(new_device, self.set_switch_device_state)
 
     def get_devices(self) -> [MqttDevice]:
         return [device for device in self.mqtt_state.devices.values()]
