@@ -2,3 +2,5 @@ Flask
 Inject
 requests
 paho-mqtt
+skyfield
+pytz
