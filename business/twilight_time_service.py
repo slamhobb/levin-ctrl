@@ -24,7 +24,8 @@ class TwilightTimeService:
             return self.times
 
         self.date = today
-        self.times = self._get_times(now)
+        start_date, end_date = self._get_times(now)
+        self.times = start_date + timedelta(hours=1), end_date - timedelta(hours=1)
 
         return self.times
 
