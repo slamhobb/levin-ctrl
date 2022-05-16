@@ -41,4 +41,13 @@ class TwilightTimeService:
         f = almanac.dark_twilight_day(eph, bluffton)
         times, events = almanac.find_discrete(t0, t1, f)
 
-        return times[3].astimezone(self.zone), times[4].astimezone(self.zone)
+        result = []
+        previous_e = None
+        for t, e in zip(times, events):
+            if e == 4:
+                result.append(t.astimezone(self.zone))
+            if previous_e == 4:
+                result.append(t.astimezone(self.zone))
+            previous_e = e
+
+        return result[0], result[1]
