@@ -22,7 +22,7 @@ class MqttService:
         self.mqtt_state.connected = True
 
         topics = []
-        for device_config in config["MQTT"]["DEVICES"]:
+        for device_config in config['MQTT']['DEVICES']:
             topic = device_config['TOPIC']
             device_type = DeviceType(device_config['TYPE'])
             device_name = device_config['NAME']
@@ -47,7 +47,10 @@ class MqttService:
         self.mqtt_state.devices[topic] = new_device
 
         if not old_device.is_equal(new_device):
-            self.smart_light_logic_service.on_change_device(new_device, self.set_switch_device_state)
+            self.smart_light_logic_service.on_change_device(
+                new_device,
+                self.set_switch_device_state,
+                self.get_device)
 
     def get_devices(self) -> [MqttDevice]:
         return [device for device in self.mqtt_state.devices.values()]
@@ -67,5 +70,5 @@ class MqttService:
 
     @staticmethod
     def _get_topic_by_device_name(device_name: str) -> str:
-        devices = [device_config for device_config in config["MQTT"]["DEVICES"] if device_config['NAME'] == device_name]
+        devices = [device_config for device_config in config['MQTT']['DEVICES'] if device_config['NAME'] == device_name]
         return devices[0]['TOPIC']

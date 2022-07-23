@@ -18,15 +18,28 @@ class SmartLightLogicService:
         self.timer = None
         self.off_time = None
 
-    def on_change_device(self, device: MqttDevice, set_switch_device_state: Callable[[str, bool], None]):
-        if device.name == 'Датчик движения' and device.type == DeviceType.MOTION:
-            self._on_motion(device.occupancy, set_switch_device_state)
+    def on_change_device(
+            self,
+            device: MqttDevice,
+            set_switch_device_state: Callable[[str, bool], None],
+            get_device: Callable[[str], MqttDevice]
+    ):
+        if (device.name == 'Датчик движения' or device.name == 'Датчик движения 2')\
+                and device.type == DeviceType.MOTION:
+            self._on_motion(get_device, set_switch_device_state)
 
         if device.name == 'Кнопка 1' and device.type == DeviceType.BUTTON:
             self._on_button(device.action, set_switch_device_state)
 
-    def _on_motion(self, occupancy: bool, set_switch_device_state: Callable[[str, bool], None]):
-        light_new_state = occupancy
+    def _on_motion(
+            self,
+            get_device: Callable[[str], MqttDevice],
+            set_switch_device_state: Callable[[str, bool], None]
+    ):
+        occupancy1 = get_device('Датчик движения').occupancy
+        occupancy2 = get_device('Датчик движения 2').occupancy
+
+        light_new_state = occupancy1 or occupancy2
 
         if light_new_state and self.twilight_time_service.is_light_now():
             return
