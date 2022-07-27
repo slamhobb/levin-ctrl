@@ -26,12 +26,32 @@ class SmartLightLogicService:
     ):
         if (device.name == 'Датчик движения' or device.name == 'Датчик движения 2')\
                 and device.type == DeviceType.MOTION:
-            self._on_motion(get_device, set_switch_device_state)
+            self._on_motion(device.occupancy, get_device, set_switch_device_state)
 
         if device.name == 'Кнопка 1' and device.type == DeviceType.BUTTON:
-            self._on_button(device.action, set_switch_device_state)
+            self._on_button(device.action, get_device, set_switch_device_state)
 
     def _on_motion(
+            self,
+            occupancy: bool,
+            get_device: Callable[[str], MqttDevice],
+            set_switch_device_state: Callable[[str, bool], None]
+    ):
+        if occupancy:
+            self._on_motion_start(set_switch_device_state)
+        else:
+            self._on_motion_end(get_device, set_switch_device_state)
+
+    def _on_motion_start(
+            self,
+            set_switch_device_state: Callable[[str, bool], None]
+    ):
+        if self.twilight_time_service.is_light_now():
+            return
+
+        set_switch_device_state('Лампочка кухня', True)
+
+    def _on_motion_end(
             self,
             get_device: Callable[[str], MqttDevice],
             set_switch_device_state: Callable[[str, bool], None]
@@ -39,25 +59,28 @@ class SmartLightLogicService:
         occupancy1 = get_device('Датчик движения').occupancy
         occupancy2 = get_device('Датчик движения 2').occupancy
 
-        light_new_state = occupancy1 or occupancy2
-
-        if light_new_state and self.twilight_time_service.is_light_now():
+        off_light = not occupancy1 and not occupancy2
+        if not off_light:
             return
 
-        if not light_new_state and \
-                self.off_time is not None and \
-                datetime.now() < self.off_time:
+        if self.off_time is not None \
+                and datetime.now() < self.off_time:
             return
 
-        set_switch_device_state('Лампочка кухня', light_new_state)
+        set_switch_device_state('Лампочка кухня', False)
 
-    def _on_button(self, action: str, set_switch_device_state: Callable[[str, bool], None]):
+    def _on_button(
+            self,
+            action: str,
+            get_device: Callable[[str], MqttDevice],
+            set_switch_device_state: Callable[[str, bool], None]
+    ):
         if action == 'single':
             if self.timer is not None:
                 self.timer.cancel()
 
             self.timer = Timer(config['MINUTES_TURN_LIGHT'] * 60,
-                               lambda: self._deferred_light_off(set_switch_device_state))
+                               lambda: self._deferred_light_off(get_device, set_switch_device_state))
             self.timer.start()
 
             self.off_time = datetime.now() + timedelta(minutes=config['MINUTES_TURN_LIGHT'])
@@ -70,6 +93,16 @@ class SmartLightLogicService:
             self.off_time = None
             set_switch_device_state('Лампочка кухня', False)
 
-    def _deferred_light_off(self, set_switch_device_state: Callable[[str, bool], None]):
+    def _deferred_light_off(
+            self,
+            get_device: Callable[[str], MqttDevice],
+            set_switch_device_state: Callable[[str, bool], None]
+    ):
         self.off_time = None
-        set_switch_device_state('Лампочка кухня', False)
+
+        occupancy1 = get_device('Датчик движения').occupancy
+        occupancy2 = get_device('Датчик движения 2').occupancy
+
+        off_light = not occupancy1 and not occupancy2
+        if off_light:
+            set_switch_device_state('Лампочка кухня', False)
