@@ -4,10 +4,12 @@ from lib.config import config
 from lib.models.mqtt_data import MqttData, DeviceType, MqttDevice
 from business.mqtt_device_mapper import MqttDeviceMapper
 from business.smart_light_logic_service import SmartLightLogicService
+from business.smart_socket_logic_service import SmartSocketLogicService
 
 
 class MqttService:
     smart_light_logic_service = inject.attr(SmartLightLogicService)
+    smart_socket_logic_service = inject.attr(SmartSocketLogicService)
 
     def __init__(self):
         self.mqtt_client = None
@@ -46,11 +48,16 @@ class MqttService:
         new_device = MqttDeviceMapper.map_device(old_device.name, old_device.type, payload)
         self.mqtt_state.devices[topic] = new_device
 
-        if not old_device.is_equal(new_device):
-            self.smart_light_logic_service.on_change_device(
-                new_device,
-                self.set_switch_device_state,
-                self.get_device)
+        if old_device.is_equal(new_device):
+            return
+
+        self.smart_light_logic_service.on_change_device(
+            new_device,
+            self.set_switch_device_state,
+            self.get_device)
+        self.smart_socket_logic_service.on_change_device(
+            new_device,
+            self.set_switch_device_state)
 
     def get_devices(self) -> [MqttDevice]:
         return [device for device in self.mqtt_state.devices.values()]
@@ -62,7 +69,9 @@ class MqttService:
     def set_switch_device_state(self, device_name: str, new_state: bool):
         topic = self._get_topic_by_device_name(device_name)
         device = self.mqtt_state.devices.get(topic, None)
-        if device is None or device.type != DeviceType.SWITCH:
+        switch_device_types = [DeviceType.SWITCH, DeviceType.SOCKET]
+
+        if device is None or device.type not in switch_device_types:
             return
 
         device_state = 'ON' if new_state else 'OFF'

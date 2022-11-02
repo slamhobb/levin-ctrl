@@ -8,6 +8,7 @@ class DeviceType(str, Enum):
     TEMP_HUM = 'temp_hum'
     BUTTON = 'button'
     MOTION = 'motion'
+    SOCKET = 'socket'
 
 
 @dataclass
@@ -32,6 +33,11 @@ class MqttBatteryDevice:
 @dataclass
 class MqttDeviceSwitch(MqttDevice):
     state: bool = False
+
+
+@dataclass
+class MqttDeviceSocket(MqttDeviceSwitch):
+    power: float = 0.0
 
 
 @dataclass

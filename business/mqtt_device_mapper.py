@@ -1,5 +1,5 @@
 from lib.models.mqtt_data import DeviceType, MqttDevice, MqttDeviceSwitch, MqttDeviceTempHum, MqttDeviceButton, \
-    MqttDeviceMotion
+    MqttDeviceMotion, MqttDeviceSocket
 
 
 class MqttDeviceMapper:
@@ -9,6 +9,13 @@ class MqttDeviceMapper:
             signal_strength = MqttDeviceMapper._map_signal_strength(payload)
             state = payload.get('state', 'off').lower() == 'on'
             return MqttDeviceSwitch(name=name, type=device_type, signal_strength=signal_strength, state=state)
+
+        if device_type == DeviceType.SOCKET:
+            signal_strength = MqttDeviceMapper._map_signal_strength(payload)
+            state = payload.get('state', 'off').lower() == 'on'
+            power = payload.get('power', 0.0)
+            return MqttDeviceSocket(name=name, type=device_type, signal_strength=signal_strength, state=state,
+                                    power=power)
 
         if device_type == DeviceType.TEMP_HUM:
             signal_strength = MqttDeviceMapper._map_signal_strength(payload)

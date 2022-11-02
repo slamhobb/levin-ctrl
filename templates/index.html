@@ -42,6 +42,12 @@
         {% if mqtt_device.type == 'switch' %}
           <h2>{{ macros.dot(mqtt_device.state) }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
           {{ macros.mqtt_switch(mqtt_device) }}
+        {% elif mqtt_device.type == 'socket' %}
+          <h2>
+              {{ macros.dot(mqtt_device.state) }} {{ mqtt_device.name }} {{ mqtt_device.power }} Вт
+              ({{ mqtt_device.signal_strength }})
+          </h2>
+          {{ macros.mqtt_socket(mqtt_device) }}
         {% elif mqtt_device.type == 'temp_hum' %}
           <h2>{{ macros.mqtt_temp_hum(mqtt_device) }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
         {% elif mqtt_device.type == 'motion' %}
