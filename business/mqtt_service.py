@@ -5,11 +5,13 @@ from lib.models.mqtt_data import MqttData, DeviceType, MqttDevice
 from business.mqtt_device_mapper import MqttDeviceMapper
 from business.smart_light_logic_service import SmartLightLogicService
 from business.smart_socket_logic_service import SmartSocketLogicService
+from business.light_repeater_service import LightRepeaterService
 
 
 class MqttService:
     smart_light_logic_service = inject.attr(SmartLightLogicService)
     smart_socket_logic_service = inject.attr(SmartSocketLogicService)
+    light_repeater_service = inject.attr(LightRepeaterService)
 
     def __init__(self):
         self.mqtt_client = None
@@ -51,13 +53,9 @@ class MqttService:
         if old_device.is_equal(new_device):
             return
 
-        self.smart_light_logic_service.on_change_device(
-            new_device,
-            self.set_switch_device_state,
-            self.get_device)
-        self.smart_socket_logic_service.on_change_device(
-            new_device,
-            self.set_switch_device_state)
+        self.smart_light_logic_service.on_change_device(new_device, self.set_switch_device_state, self.get_device)
+        self.smart_socket_logic_service.on_change_device(new_device, self.set_switch_device_state)
+        self.light_repeater_service.on_change_device(new_device, self.set_switch_device_state)
 
     def get_devices(self) -> [MqttDevice]:
         return [device for device in self.mqtt_state.devices.values()]
