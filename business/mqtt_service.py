@@ -1,5 +1,7 @@
 import inject
 
+import json
+
 from lib.config import config
 from lib.models.mqtt_data import MqttData, DeviceType, MqttDevice
 from business.mqtt_device_mapper import MqttDeviceMapper
@@ -55,7 +57,7 @@ class MqttService:
 
         self.smart_light_logic_service.on_change_device(new_device, self.set_switch_device_state, self.get_device)
         self.smart_socket_logic_service.on_change_device(new_device, self.set_switch_device_state)
-        self.light_repeater_service.on_change_device(new_device, self.set_switch_device_state)
+        self.light_repeater_service.on_change_device(new_device, self.set_device_state)
 
     def get_devices(self) -> [MqttDevice]:
         return [device for device in self.mqtt_state.devices.values()]
@@ -67,12 +69,17 @@ class MqttService:
     def set_switch_device_state(self, device_name: str, new_state: bool):
         topic = self._get_topic_by_device_name(device_name)
         device = self.mqtt_state.devices.get(topic, None)
-        switch_device_types = [DeviceType.SWITCH, DeviceType.SOCKET]
+        switch_device_types = [DeviceType.SWITCH, DeviceType.SOCKET, DeviceType.LIGHT]
 
         if device is None or device.type not in switch_device_types:
             return
 
         device_state = 'ON' if new_state else 'OFF'
+        self.mqtt_client.publish(f'{topic}/set', device_state)
+
+    def set_device_state(self, device_name: str, new_state: dict):
+        topic = self._get_topic_by_device_name(device_name)
+        device_state = json.dumps(new_state)
         self.mqtt_client.publish(f'{topic}/set', device_state)
 
     @staticmethod

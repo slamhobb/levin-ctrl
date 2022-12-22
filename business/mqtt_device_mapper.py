@@ -1,5 +1,5 @@
 from lib.models.mqtt_data import DeviceType, MqttDevice, MqttDeviceSwitch, MqttDeviceTempHum, MqttDeviceButton, \
-    MqttDeviceMotion, MqttDeviceSocket
+    MqttDeviceMotion, MqttDeviceSocket, MqttDeviceLight
 
 
 class MqttDeviceMapper:
@@ -16,6 +16,14 @@ class MqttDeviceMapper:
             power = payload.get('power', 0.0)
             return MqttDeviceSocket(name=name, type=device_type, signal_strength=signal_strength, state=state,
                                     power=power)
+
+        if device_type == DeviceType.LIGHT:
+            signal_strength = MqttDeviceMapper._map_signal_strength(payload)
+            state = payload.get('state', 'off').lower() == 'on'
+            brightness = payload.get('brightness', 0)
+            color_temp = payload.get('color_temp', 0)
+            return MqttDeviceLight(name=name, type=device_type, signal_strength=signal_strength, state=state,
+                                   brightness=brightness, color_temp=color_temp)
 
         if device_type == DeviceType.TEMP_HUM:
             signal_strength = MqttDeviceMapper._map_signal_strength(payload)
@@ -46,7 +54,7 @@ class MqttDeviceMapper:
         signal_strength = payload.get('linkquality', None)
         if signal_strength is None:
             return 'Неизветсно'
-        return f'{signal_strength} дБ'
+        return f'{signal_strength} lqi'
 
     @staticmethod
     def _map_battery_voltage(payload: dict) -> (str, str):

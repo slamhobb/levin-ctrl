@@ -25,13 +25,6 @@ def index():
                            mqtt_devices=mqtt_devices)
 
 
-@ctrl.route('/lights')
-def lights():
-    relay2_data = get_relay_data(RelayType.RELAY2)
-
-    return render_template('lights.html', relay2_data=relay2_data)
-
-
 @ctrl.route('/turn-rule', methods=['POST'])
 def turn_rule():
     new_status = _bool_parse(request.form['new_status'])

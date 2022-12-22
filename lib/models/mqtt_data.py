@@ -5,10 +5,11 @@ from enum import Enum
 
 class DeviceType(str, Enum):
     SWITCH = 'switch'
+    SOCKET = 'socket'
+    LIGHT = 'light'
     TEMP_HUM = 'temp_hum'
     BUTTON = 'button'
     MOTION = 'motion'
-    SOCKET = 'socket'
 
 
 @dataclass
@@ -38,6 +39,12 @@ class MqttDeviceSwitch(MqttDevice):
 @dataclass
 class MqttDeviceSocket(MqttDeviceSwitch):
     power: float = 0.0
+
+
+@dataclass
+class MqttDeviceLight(MqttDeviceSwitch):
+    brightness: int = 0
+    color_temp: int = 0
 
 
 @dataclass
