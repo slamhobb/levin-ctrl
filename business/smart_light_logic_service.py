@@ -24,7 +24,9 @@ class SmartLightLogicService:
             set_switch_device_state: Callable[[str, bool], None],
             get_device: Callable[[str], MqttDevice]
     ):
-        if (device.name == 'Датчик движения' or device.name == 'Датчик движения 2')\
+        if (device.name == 'Датчик движения'
+            or device.name == 'Датчик движения 2'
+            or device.name == 'Датчик движения 3')\
                 and device.type == DeviceType.MOTION:
             self._on_motion(device.occupancy, get_device, set_switch_device_state)
 
@@ -58,8 +60,9 @@ class SmartLightLogicService:
     ):
         occupancy1 = get_device('Датчик движения').occupancy
         occupancy2 = get_device('Датчик движения 2').occupancy
+        occupancy3 = get_device('Датчик движения 3').occupancy
 
-        off_light = not occupancy1 and not occupancy2
+        off_light = not occupancy1 and not occupancy2 and not occupancy3
         if not off_light:
             return
 
@@ -102,7 +105,8 @@ class SmartLightLogicService:
 
         occupancy1 = get_device('Датчик движения').occupancy
         occupancy2 = get_device('Датчик движения 2').occupancy
+        occupancy3 = get_device('Датчик движения 3').occupancy
 
-        off_light = not occupancy1 and not occupancy2
+        off_light = not occupancy1 and not occupancy2 and not occupancy3
         if off_light:
             set_switch_device_state('Лампочка кухня', False)
