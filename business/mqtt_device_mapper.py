@@ -1,5 +1,5 @@
 from lib.models.mqtt_data import DeviceType, MqttDevice, MqttDeviceSwitch, MqttDeviceTempHum, MqttDeviceButton, \
-    MqttDeviceMotion, MqttDeviceSocket, MqttDeviceLight
+    MqttDeviceMotion, MqttDeviceSocket, MqttDeviceLight, MqttDeviceMotor
 
 
 class MqttDeviceMapper:
@@ -46,6 +46,12 @@ class MqttDeviceMapper:
             occupancy = payload.get('occupancy', False)
             return MqttDeviceMotion(name=name, type=device_type, signal_strength=signal_strength,
                                     battery=battery, voltage=voltage, occupancy=occupancy)
+
+        if device_type == DeviceType.MOTOR:
+            signal_strength = MqttDeviceMapper._map_signal_strength(payload)
+            position = payload.get('position', -1)
+            return MqttDeviceMotor(name=name, type=device_type, signal_strength=signal_strength,
+                                   position=position)
 
         raise Exception('Unsupported device')
 

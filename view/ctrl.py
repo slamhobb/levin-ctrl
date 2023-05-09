@@ -93,5 +93,17 @@ def get_mqtt_device():
     return jsonify(device.__dict__)
 
 
+@ctrl.route('/set-mqtt-motor', methods=['POST'])
+def set_mqtt_motor():
+    device_name = request.form['device_name']
+    position = request.form['position']
+    mqtt_service.set_device_state(device_name, dict(position=position))
+
+    if request.referrer is None:
+        return Response(status=200)
+
+    return redirect(request.referrer)
+
+
 def _bool_parse(value: str) -> bool:
     return value.lower() == 'true'

@@ -10,6 +10,7 @@ class DeviceType(str, Enum):
     TEMP_HUM = 'temp_hum'
     BUTTON = 'button'
     MOTION = 'motion'
+    MOTOR = 'motor'
 
 
 @dataclass
@@ -61,6 +62,11 @@ class MqttDeviceButton(MqttBatteryDevice, MqttDevice):
 @dataclass
 class MqttDeviceMotion(MqttBatteryDevice, MqttDevice):
     occupancy: bool = False
+
+
+@dataclass
+class MqttDeviceMotor(MqttDevice):
+    position: int = -1
 
 
 @dataclass
