@@ -47,3 +47,16 @@
 {% macro mqtt_temp_hum(device) -%}
     <span style="color: DodgerBlue">Темп: {{ device.temperature }}&deg; Влажн: {{ device.humidity }}%</span>
 {%- endmacro %}
+
+{%  macro mqtt_motor(device) -%}
+    <form method="post" action="{{ url_for('.set_mqtt_motor') }}">
+        <input type="hidden" name="device_name" value="{{ device.name }}">
+    {% if device.position < 100 %}
+        <input type="hidden" name="position" value="100">
+        <input type="submit" value="Установить 100" style="font-size: 2.5rem">
+    {% else %}
+        <input type="hidden" name="position" value="0">
+        <input type="submit" value="Установить 0" style="font-size: 2.5rem">
+    {% endif %}
+    </form>
+{%- endmacro %}

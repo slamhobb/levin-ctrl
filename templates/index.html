@@ -55,6 +55,9 @@
           <h2>{{ macros.mqtt_temp_hum(mqtt_device) }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
         {% elif mqtt_device.type == 'motion' %}
           <h2>{{ macros.dot(mqtt_device.occupancy) }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
+        {% elif mqtt_device.type == 'motor' %}
+          <h2>{{ mqtt_device.position }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
+          {{ macros.mqtt_motor(mqtt_device) }}
         {% endif %}
     {% endfor %}
 
