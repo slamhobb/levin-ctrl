@@ -11,6 +11,7 @@ class DeviceType(str, Enum):
     BUTTON = 'button'
     MOTION = 'motion'
     MOTOR = 'motor'
+    CO2 = 'co2'
 
 
 @dataclass
@@ -67,6 +68,11 @@ class MqttDeviceMotion(MqttBatteryDevice, MqttDevice):
 @dataclass
 class MqttDeviceMotor(MqttDevice):
     position: int = -1
+
+
+@dataclass
+class MqttDeviceCO2(MqttDevice):
+    co2: int
 
 
 @dataclass

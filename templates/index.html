@@ -58,6 +58,8 @@
         {% elif mqtt_device.type == 'motor' %}
           <h2>{{ mqtt_device.position }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
           {{ macros.mqtt_motor(mqtt_device) }}
+        {% elif mqtt_device.type == 'co2' %}
+          <h2>{{ macros.mqtt_co2(mqtt_device) }} {{ mqtt_device.name }} ({{ mqtt_device.signal_strength }})</h2>
         {% endif %}
     {% endfor %}
 

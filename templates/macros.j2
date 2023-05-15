@@ -60,3 +60,7 @@
     {% endif %}
     </form>
 {%- endmacro %}
+
+{% macro mqtt_co2(device) -%}
+    <span style="color: DodgerBlue">CO2: {{ device.co2 }} ppm</span>
+{%- endmacro %}
