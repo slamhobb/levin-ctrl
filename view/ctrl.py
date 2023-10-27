@@ -3,7 +3,8 @@ import inject
 from infrastructure.parallel import run_parallel
 
 from flask import render_template, redirect, request, Blueprint, jsonify, Response
-from lib.router import get_router_data, set_wifi, set_wifi_ext, set_rule, set_dimaphone_tunnel, set_demkon_tunnel
+from lib.router import get_router_data, set_wifi, set_wifi_ext, set_rule, set_dimaphone_tunnel, set_demkon_tunnel, \
+    set_ipad_tunnel
 from lib.sonoff import RelayType, get_relay_data, set_relay
 from business.mqtt_service import MqttService
 
@@ -57,6 +58,13 @@ def turn_dimaphone_tunnel():
 def turn_demkon_tunnel():
     new_status = _bool_parse(request.form['new_status'])
     set_demkon_tunnel(new_status)
+    return redirect(request.referrer)
+
+
+@ctrl.route('/turn-ipad-tunnel', methods=['POST'])
+def turn_ipad_tunnel():
+    new_status = _bool_parse(request.form['new_status'])
+    set_ipad_tunnel(new_status)
     return redirect(request.referrer)
 
 
