@@ -69,7 +69,7 @@ def turn_ipad_tunnel():
 
 
 @ctrl.route('/turn-tv-tunnel', methods=['POST'])
-def turn_ipad_tunnel():
+def turn_tv_tunnel():
     new_status = _bool_parse(request.form['new_status'])
     set_tv_tunnel(new_status)
     return redirect(request.referrer)
