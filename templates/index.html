@@ -35,6 +35,9 @@
     <h2>{{ macros.dot(router_data.ipad_tunnel_status) }} Тоннель iPad</h2>
     {{ macros.form(router_data.ipad_tunnel_status, url_for('.turn_ipad_tunnel')) }}
 
+    <h2>{{ macros.dot(router_data.tv_tunnel_status) }} Тоннель TV</h2>
+    {{ macros.form(router_data.tv_tunnel_status, url_for('.turn_tv_tunnel')) }}
+
     <h2>{{ macros.dot(relay1_data.relay_status) }} Реле 1 ({{ relay1_data.signal_strength }})</h2>
     {{ macros.form(relay1_data.relay_status, url_for('.turn_relay1')) }}
 

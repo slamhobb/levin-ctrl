@@ -20,7 +20,8 @@ def get_router_data() -> RouterData:
         ':if [/interface get wlan1 disabled] do= { :put false } else= { :put true };',
         ':if [/ip firewall mangle get [find comment="traffic from DimaPhone to ISP1"] disabled] do= { :put true } else= { :put false };',
         ':if [/ip firewall mangle get [find comment="traffic from Demkon to ISP1"] disabled] do= { :put true } else= { :put false };',
-        ':if [/ip firewall mangle get [find comment="traffic from iPad to ISP1"] disabled] do= { :put true } else= { :put false };'
+        ':if [/ip firewall mangle get [find comment="traffic from iPad to ISP1"] disabled] do= { :put true } else= { :put false };',
+        ':if [/ip firewall mangle get [find comment="traffic from TV to ISP1"] disabled] do= { :put true } else= { :put false };'
     ])
 
     queries = [
@@ -54,6 +55,9 @@ def get_router_data() -> RouterData:
     ipad_tunnel_status = lines2.pop(0)
     ipad_tunnel_status = ipad_tunnel_status == 'true'
 
+    tv_tunnel_status = lines2.pop(0)
+    tv_tunnel_status = tv_tunnel_status == 'true'
+
     return RouterData(
         rule_status=rule_status,
         wifi_status=wifi_status,
@@ -61,7 +65,8 @@ def get_router_data() -> RouterData:
         wifi_ext_status=wifi_ext_status,
         dimaphone_tunnel_status=dimaphone_tunnel_status,
         demkon_tunnel_status=demkon_tunnel_status,
-        ipad_tunnel_status=ipad_tunnel_status)
+        ipad_tunnel_status=ipad_tunnel_status,
+        tv_tunnel_status=tv_tunnel_status)
 
 
 def set_wifi(new_status: bool):
@@ -95,6 +100,12 @@ def set_ipad_tunnel(new_status: bool):
     disabled = 'yes' if new_status else 'no'
     _ssh_query(f'/ip firewall mangle set [find comment="traffic from iPad to ISP1"] disabled={disabled}', RouterType.MAIN)
     _ssh_query('/ip firewall connection remove [find src-address~"192.168.88.101"];', RouterType.MAIN)
+
+
+def set_tv_tunnel(new_status: bool):
+    disabled = 'yes' if new_status else 'no'
+    _ssh_query(f'/ip firewall mangle set [find comment="traffic from TV to ISP1"] disabled={disabled}', RouterType.MAIN)
+    _ssh_query('/ip firewall connection remove [find src-address~"192.168.88.133"];', RouterType.MAIN)
 
 
 def get_black_list() -> [str]:

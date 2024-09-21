@@ -10,3 +10,4 @@ class RouterData:
     dimaphone_tunnel_status: bool
     demkon_tunnel_status: bool
     ipad_tunnel_status: bool
+    tv_tunnel_status: bool
