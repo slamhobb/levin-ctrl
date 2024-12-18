@@ -5,7 +5,7 @@ from infrastructure.parallel import run_parallel
 from flask import render_template, redirect, request, Blueprint, jsonify, Response
 from lib.router import get_router_data, set_wifi, set_wifi_ext, set_rule, set_dimaphone_tunnel, set_demkon_tunnel, \
     set_ipad_tunnel, set_tv_tunnel
-from lib.sonoff import RelayType, get_relay_data, set_relay
+from lib.sonoff import RelayType, SocketType, get_relay_data, set_relay, set_socket
 from business.mqtt_service import MqttService
 
 ctrl = Blueprint('ctrl', __name__)
@@ -86,6 +86,27 @@ def turn_relay1():
 def turn_relay2():
     new_status = _bool_parse(request.form['new_status'])
     set_relay(RelayType.RELAY2, new_status)
+    return redirect(request.referrer)
+
+
+@ctrl.route('/turn-socket1', methods=['POST'])
+def turn_socket1():
+    new_status = _bool_parse(request.form['new_status'])
+    set_socket(SocketType.SOCKET1, new_status)
+    return redirect(request.referrer)
+
+
+@ctrl.route('/turn-socket2', methods=['POST'])
+def turn_socket2():
+    new_status = _bool_parse(request.form['new_status'])
+    set_socket(SocketType.SOCKET2, new_status)
+    return redirect(request.referrer)
+
+
+@ctrl.route('/turn-socket3', methods=['POST'])
+def turn_socket3():
+    new_status = _bool_parse(request.form['new_status'])
+    set_socket(SocketType.SOCKET3, new_status)
     return redirect(request.referrer)
 
 

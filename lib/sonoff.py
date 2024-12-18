@@ -3,6 +3,7 @@ from enum import Enum
 import requests
 from lib.config import config
 from lib.models.relay_data import RelayData
+import json
 
 _timeout = 2
 
@@ -10,6 +11,12 @@ _timeout = 2
 class RelayType(Enum):
     RELAY1 = 1
     RELAY2 = 2
+
+
+class SocketType(Enum):
+    SOCKET1 = 1
+    SOCKET2 = 2
+    SOCKET3 = 3
 
 
 def get_relay_data(relay_type: RelayType) -> RelayData:
@@ -56,3 +63,27 @@ def _get_relay_addr(relay_type: RelayType) -> str:
         return config['RELAY2_ADDR']
 
     raise Exception('Unsupported relay type')
+
+
+def set_socket(socket_type: SocketType, new_status: bool):
+    (addr, on_data, off_data) = _get_socket_data(socket_type)
+    url = f'http://{addr}/zeroconf/switch'
+    request = json.loads(on_data if new_status else off_data)
+
+    requests.post(url, json=request, timeout=_timeout)
+
+
+def _get_socket_data(socket_type: SocketType) -> (str, str, str):
+    if socket_type == SocketType.SOCKET1:
+        socket = config['SOCKET1']
+        return socket['ADDR'], socket['ON_DATA'], socket['OFF_DATA']
+
+    if socket_type == SocketType.SOCKET2:
+        socket = config['SOCKET2']
+        return socket['ADDR'], socket['ON_DATA'], socket['OFF_DATA']
+
+    if socket_type == SocketType.SOCKET3:
+        socket = config['SOCKET3']
+        return socket['ADDR'], socket['ON_DATA'], socket['OFF_DATA']
+
+    raise Exception('Unsupported socket type')

@@ -8,7 +8,7 @@
 
 {%  macro form(status, url) -%}
     <form method="post" action="{{ url }}">
-   {% if status %}
+    {% if status %}
         <input type="hidden" name="new_status" value="false">
         <input type="submit" value="Отключить" style="font-size: 2.5rem">
     {% else %}
